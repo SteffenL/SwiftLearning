@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>runDestinationsByUUID</key>
+	<dict>
+		<key>38ADC651-F554-4E6E-AB98-C5155864C4EB</key>
+		<dict>
+			<key>localComputer</key>
+			<dict>
+				<key>modelCode</key>
+				<string>MacPro6,1</string>
+				<key>platformIdentifier</key>
+				<string>com.apple.platform.macosx</string>
+			</dict>
+			<key>targetArchitecture</key>
+			<string>x86_64</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
