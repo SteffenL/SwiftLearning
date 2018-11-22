@@ -8,11 +8,15 @@
 
 import UIKit
 
-class TodoItem {
+class TodoItem: Codable {
     var title: String = ""
     var done: Bool = false
 
-    init(title: String, done: Bool) {
+    init() {
+    }
+
+    convenience init(title: String, done: Bool) {
+        self.init()
         self.title = title
         self.done = done
     }
@@ -25,17 +29,7 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let savedItems = userDefaults.array(forKey: "TodoItems") {
-            self.items = savedItems.map { (savedItem) -> TodoItem? in
-                if let dict = savedItem as? Dictionary<String, Any> {
-                    let title = dict["Title"] as! String
-                    let done = dict["Done"] as! Bool
-                    return TodoItem(title: title, done: done)
-                }
-
-                return nil
-            }.filter { (item) -> Bool in return item != nil }.map { item in item! }
-        }
+        items = loadItems()
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -57,13 +51,7 @@ class TodoListViewController: UITableViewController {
         cell.accessoryType = item.done ? .checkmark : .none
         tableView.deselectRow(at: indexPath, animated: true)
 
-        self.userDefaults.set(self.items.map { item -> [String: Any] in
-            return [
-                "Title": item.title,
-                "Done": item.done
-            ]
-        }, forKey: "TodoItems")
-        self.userDefaults.synchronize()
+        self.saveItems(items: self.items)
     }
 
     @IBAction func addItemPressed(_ sender: Any) {
@@ -82,17 +70,37 @@ class TodoListViewController: UITableViewController {
             }
 
             self.items.append(TodoItem(title: title, done: false))
-            self.userDefaults.set(self.items.map { item -> [String: Any] in
-                return [
-                    "Title": item.title,
-                    "Done": item.done
-                ]
-            }, forKey: "TodoItems")
-            self.userDefaults.synchronize()
+            self.saveItems(items: self.items)
             self.tableView.reloadData()
         }
 
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
+    }
+
+    private func getItemsDataURL() -> URL {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("Items.plist")
+    }
+
+    private func loadItems() -> [TodoItem] {
+        do {
+            let data = try Data(contentsOf: getItemsDataURL())
+            let decoder = PropertyListDecoder()
+            let items = try decoder.decode([TodoItem].self, from: data)
+            return items
+        } catch {
+            print(error)
+            return []
+        }
+    }
+
+    private func saveItems(items: [TodoItem]) {
+        let encoder = PropertyListEncoder()
+        do {
+            let data = try encoder.encode(items)
+            try data.write(to: getItemsDataURL())
+        } catch {
+            print(error)
+        }
     }
 }
