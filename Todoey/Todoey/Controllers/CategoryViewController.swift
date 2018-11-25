@@ -7,11 +7,11 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    private var items = [TodoCategory]()
+    private let realm = try! Realm()
+    private var items: Results<TodoCategory>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,27 +60,22 @@ class CategoryViewController: UITableViewController {
     }
 
     private func addCategory(title: String) {
-        let category = TodoCategory(context: context)
+        let category = TodoCategory()
         category.title = title
-        items.append(category)
-        saveItems()
-        tableView.reloadData()
-    }
 
-    private func loadItems(request: NSFetchRequest<TodoCategory> = TodoCategory.fetchRequest()) {
         do {
-            items = try context.fetch(request)
+            try realm.write {
+                realm.add(category)
+            }
+
             tableView.reloadData()
         } catch {
-            print(error)
+            print("Error while adding category: \(error)")
         }
     }
 
-    private func saveItems() {
-        do {
-            try context.save()
-        } catch {
-            print(error)
-        }
+    private func loadItems() {
+        items = realm.objects(TodoCategory.self)
+        tableView.reloadData()
     }
 }

@@ -7,11 +7,11 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class TodoListViewController: UITableViewController, UISearchBarDelegate {
-    private var items = [TodoItem]()
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    private let realm = try! Realm()
+    private var items: Results<TodoItem>!
     var selectedCategory: TodoCategory?
 
     @IBOutlet weak var searchBar: UISearchBar!
@@ -37,11 +37,17 @@ class TodoListViewController: UITableViewController, UISearchBarDelegate {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)!
         let item = items[indexPath.row]
-        item.done = !item.done
+
+        do {
+            try realm.write {
+                item.done = !item.done
+            }
+        } catch {
+            print("Error while saving done status: \(error)")
+        }
+
         cell.accessoryType = item.done ? .checkmark : .none
         tableView.deselectRow(at: indexPath, animated: true)
-
-        self.saveItems()
     }
 
     @IBAction func addItemPressed(_ sender: Any) {
@@ -49,7 +55,7 @@ class TodoListViewController: UITableViewController, UISearchBarDelegate {
         var descriptionTextField: UITextField?
 
         alert.addTextField { (alertTextField) in
-            alertTextField.placeholder = "description"
+            alertTextField.placeholder = "title"
             descriptionTextField = alertTextField
         }
 
@@ -71,49 +77,32 @@ class TodoListViewController: UITableViewController, UISearchBarDelegate {
     }
 
     private func addItem(title: String) {
-        let item = TodoItem(context: context)
-        item.title = title
-        item.done = false
-        item.category = self.selectedCategory!
+        do {
+            try realm.write {
+                let item = TodoItem()
+                item.title = title
+                selectedCategory!.items.append(item)
+            }
 
-        self.items.append(item)
-        self.saveItems()
-        self.tableView.reloadData()
+            self.tableView.reloadData()
+        } catch {
+            print("Error while saving item: \(error)")
+        }
     }
 
-    private func loadItems(with request: NSFetchRequest<TodoItem> = TodoItem.fetchRequest(), predicate: NSPredicate? = nil) {
-        let categoryPredicate = NSPredicate(format: "category = %@", selectedCategory!)
-        if let predicate = predicate {
-            let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, predicate])
-            request.predicate = compoundPredicate
-        } else {
-            request.predicate = categoryPredicate
-        }
-
-        do {
-            items = try context.fetch(request)
-            tableView.reloadData()
-        } catch {
-            print(error)
-        }
+    private func loadItems() {
+        items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        tableView.reloadData()
     }
 
     private func search(_ text: String = "") {
-        let request: NSFetchRequest<TodoItem> = TodoItem.fetchRequest()
         if text.isEmpty {
             loadItems()
         } else {
-            let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-            request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-            loadItems(with: request, predicate: predicate)
-        }
-    }
-
-    private func saveItems() {
-        do {
-            try context.save()
-        } catch {
-            print(error)
+            items = selectedCategory?.items
+                .filter("title CONTAINS[cd] %@", searchBar.text!)
+                .sorted(byKeyPath: "dateCreated", ascending: true)
+            tableView.reloadData()
         }
     }
 
