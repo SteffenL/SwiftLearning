@@ -64,7 +64,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="eVc-L0-ezs">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="TodoCategoryItemCell" id="eVc-L0-ezs">
                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="eVc-L0-ezs" id="Sl4-9h-bdX">
@@ -86,7 +86,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <segue destination="WKq-je-GQ2" kind="show" id="pPm-Gt-6fQ"/>
+                        <segue destination="WKq-je-GQ2" kind="show" identifier="goToItems" id="pPm-Gt-6fQ"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5TF-oK-5QV" userLabel="First Responder" sceneMemberID="firstResponder"/>

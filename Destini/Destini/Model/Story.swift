@@ -44,7 +44,7 @@ class Story {
         "b7": StoryLine(text: "With everything prepared, a new exciting day lies ahead at the office.", actions: [])
     ]
 
-    func getStage(id: String) -> StoryLine! {
-        return stages[id]
+    func getStage(id: String) -> StoryLine {
+        return stages[id]!
     }
 }

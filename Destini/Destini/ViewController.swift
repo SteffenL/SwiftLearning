@@ -12,7 +12,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var storyLabel: UILabel!
     @IBOutlet weak var actionButtonContainer: UIStackView!
 
-    private var story = Story()
+    private let story = Story()
     private var storyStage = ""
 
     override func viewDidLoad() {
@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     
     @objc private func chooseAction(sender: UIButton!) {
         let stage = story.getStage(id: storyStage)
-        let action = stage!.actions[sender.tag]
+        let action = stage.actions[sender.tag]
         loadStage(id: action.target)
     }
 
@@ -32,18 +32,15 @@ class ViewController: UIViewController {
 
     private func loadStage(id: String) {
         let stage = story.getStage(id: id)
-        if stage == nil {
-            return
-        }
 
-        storyLabel.text = stage!.text
+        storyLabel.text = stage.text
         for view in actionButtonContainer.arrangedSubviews {
             actionButtonContainer.removeArrangedSubview(view)
             view.removeFromSuperview()
         }
 
-        for i in 0..<stage!.actions.count {
-            let action = stage!.actions[i]
+        for i in 0..<stage.actions.count {
+            let action = stage.actions[i]
             let actionButton = UIButton(type: .system)
             actionButton.tag = i
             actionButton.setTitle(action.label, for: .normal)
